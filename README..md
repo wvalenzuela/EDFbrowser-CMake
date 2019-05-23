@@ -1,5 +1,9 @@
+# EDFbrowser-CMake
+- This a clone of the EDFbrowser https://www.teuniz.net/edfbrowse, created by Teunis van Beelen.
+- In this clone I added the CMake configuration to be enable to compile using cmake for windows, linux and mac.
+- The CMakeLists.txt is configured for Qt5
 
-Requirements
+# Requirements
 ============
 Qt  http://www.qt.io/
 
@@ -15,7 +19,7 @@ http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/
 Do not use microsoft tools or compilers!
 
 
-Introduction
+# Introduction
 ============
 
 EDFbrowser is a Qt4 application and uses qmake as part of the build
@@ -23,7 +27,7 @@ process. qmake is part of your Qt4 installation.
 
 
 
-Build and run without "installing"
+# Build and run without "installing"
 ==================================
 
 You need to have Qt and GCC (Mingw-w64 on Windows) installed.
@@ -38,14 +42,14 @@ Now you can run the program.
 
 
 
-Installing
+# Installing
 ==========
 
 sudo make install
 
 
 
-How to compile
+# How to compile
 ==============
 
 - Install Git, the GCC compiler and the Qt4 development package:
