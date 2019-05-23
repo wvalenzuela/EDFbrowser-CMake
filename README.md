@@ -2,6 +2,8 @@
 - This a clone of the EDFbrowser https://www.teuniz.net/edfbrowse, created by Teunis van Beelen.
 - In this clone I added the CMake configuration to be enable to compile using cmake for windows, linux and mac.
 - The CMakeLists.txt is configured for Qt5
+- As recomendation for Windows and Mac you need to download the Open Source Qt installer from https://www.qt.io/download
+- For Linux, look the recommendations below made by Teunis van Beelen.
 
 # Requirements
 ============
