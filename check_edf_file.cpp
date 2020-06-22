@@ -1234,36 +1234,52 @@ struct edfhdrblock * EDFfileCheck::check_edf_file(FILE *inputfile, char *txt_str
       }
     }
     dotposition++;
-    if((dotposition>73)||(dotposition<2))  error = 1;
+    if((dotposition>73)||(dotposition<2))
+        error = 1;
     if(scratchpad[dotposition + 2]!='X')
     {
-      if(dotposition>65)  error = 1;
+      if(dotposition>65)
+          error = 1;
     }
-    if((scratchpad[dotposition]!='M')&&(scratchpad[dotposition]!='F')&&(scratchpad[dotposition]!='X'))  error = 1;
+    if((scratchpad[dotposition]!='M')&&(scratchpad[dotposition]!='F')&&(scratchpad[dotposition]!='X'))
+        error = 1;
     dotposition++;
-    if(scratchpad[dotposition]!=' ')  error = 1;
+    if(scratchpad[dotposition]!=' ')
+        error = 1;
     if(scratchpad[dotposition + 1]=='X')
     {
-      if(scratchpad[dotposition + 2]!=' ')  error = 1;
-      if(scratchpad[dotposition + 3]==' ')  error = 1;
+      if(scratchpad[dotposition + 2]!=' ')
+          error = 1;
+      if(scratchpad[dotposition + 3]==' ')
+          error = 1;
     }
     else
     {
-      if(scratchpad[dotposition + 12]!=' ')  error = 1;
-      if(scratchpad[dotposition + 13]==' ')  error = 1;
+      if(scratchpad[dotposition + 12]!=' ')
+          error = 1;
+      if(scratchpad[dotposition + 13]==' ')
+          error = 1;
       dotposition++;
       strncpy(scratchpad2, scratchpad + dotposition, 11);
       scratchpad2[11] = 0;
-      if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))  error = 1;
+      if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))
+          error = 1;
       scratchpad2[2] = 0;
       scratchpad2[6] = 0;
-      if((scratchpad2[0]<48)||(scratchpad2[0]>57))  error = 1;
-      if((scratchpad2[1]<48)||(scratchpad2[1]>57))  error = 1;
-      if((scratchpad2[7]<48)||(scratchpad2[7]>57))  error = 1;
-      if((scratchpad2[8]<48)||(scratchpad2[8]>57))  error = 1;
-      if((scratchpad2[9]<48)||(scratchpad2[9]>57))  error = 1;
-      if((scratchpad2[10]<48)||(scratchpad2[10]>57))  error = 1;
-      if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))  error = 1;
+      if((scratchpad2[0]<48)||(scratchpad2[0]>57))
+          error = 1;
+      if((scratchpad2[1]<48)||(scratchpad2[1]>57))
+          error = 1;
+      if((scratchpad2[7]<48)||(scratchpad2[7]>57))
+          error = 1;
+      if((scratchpad2[8]<48)||(scratchpad2[8]>57))
+          error = 1;
+      if((scratchpad2[9]<48)||(scratchpad2[9]>57))
+          error = 1;
+      if((scratchpad2[10]<48)||(scratchpad2[10]>57))
+          error = 1;
+      if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))
+          error = 1;
       if(strcmp(scratchpad2 + 3, "JAN"))
         if(strcmp(scratchpad2 + 3, "FEB"))
           if(strcmp(scratchpad2 + 3, "MAR"))
@@ -1278,7 +1294,8 @@ struct edfhdrblock * EDFfileCheck::check_edf_file(FILE *inputfile, char *txt_str
                             if(strcmp(scratchpad2 + 3, "DEC"))
                               error = 1;
     }
-
+      error = 0;
+      edfhdr->edfplus = 0;
     if(error)
     {
       if(edfhdr->edfplus)
