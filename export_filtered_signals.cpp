@@ -87,40 +87,40 @@ UI_ExportFilteredSignalsWindow::UI_ExportFilteredSignalsWindow(QWidget *w_parent
   radioButton2->setGeometry(485, 324, 100, 25);
   radioButton2->setEnabled(false);
 
-  spinBox1 = new QSpinBox(myobjectDialog);
-  spinBox1->setGeometry(485, 384, 100, 25);
-  spinBox1->setRange(1, 2147483647);
-  spinBox1->setValue(1);
-  spinBox1->setEnabled(false);
+  spinFromDataRecord = new QSpinBox(myobjectDialog);
+  spinFromDataRecord->setGeometry(485, 384, 100, 25);
+  spinFromDataRecord->setRange(1, 2147483647);
+  spinFromDataRecord->setValue(1);
+  spinFromDataRecord->setEnabled(false);
 
-  spinBox2 = new QSpinBox(myobjectDialog);
-  spinBox2->setGeometry(485, 449, 100, 25);
-  spinBox2->setRange(1, 2147483647);
-  spinBox2->setValue(2147483647);
-  spinBox2->setEnabled(false);
+  spinToDataRecord = new QSpinBox(myobjectDialog);
+  spinToDataRecord->setGeometry(485, 449, 100, 25);
+  spinToDataRecord->setRange(1, 2147483647);
+  spinToDataRecord->setValue(2147483647);
+  spinToDataRecord->setEnabled(false);
 
-  pushButton1 = new QPushButton(myobjectDialog);
-  pushButton1->setGeometry(20, 528, 100, 25);
-  pushButton1->setText("Select File");
+  buttonSelectFile = new QPushButton(myobjectDialog);
+  buttonSelectFile->setGeometry(20, 528, 100, 25);
+  buttonSelectFile->setText("Select File");
   if(mainwindow->files_open < 2)
   {
-    pushButton1->setEnabled(false);
+    buttonSelectFile->setEnabled(false);
   }
 
-  pushButton2 = new QPushButton(myobjectDialog);
-  pushButton2->setGeometry(575, 528, 100, 25);
-  pushButton2->setText("Close");
+  buttonClose = new QPushButton(myobjectDialog);
+  buttonClose->setGeometry(575, 528, 100, 25);
+  buttonClose->setText("Close");
 
-  pushButton3 = new QPushButton(myobjectDialog);
-  pushButton3->setGeometry(200, 528, 100, 25);
-  pushButton3->setText("Export");
-  pushButton3->setEnabled(false);
+  buttonExport = new QPushButton(myobjectDialog);
+  buttonExport->setGeometry(200, 528, 100, 25);
+  buttonExport->setText("Export");
+  buttonExport->setEnabled(false);
 
-  QObject::connect(pushButton1,  SIGNAL(clicked()),         this,           SLOT(SelectFileButton()));
-  QObject::connect(pushButton2,  SIGNAL(clicked()),         myobjectDialog, SLOT(close()));
-  QObject::connect(pushButton3,  SIGNAL(clicked()),         this,           SLOT(StartExport()));
-  QObject::connect(spinBox1,     SIGNAL(valueChanged(int)), this,           SLOT(spinBox1changed(int)));
-  QObject::connect(spinBox2,     SIGNAL(valueChanged(int)), this,           SLOT(spinBox2changed(int)));
+  QObject::connect(buttonSelectFile,  SIGNAL(clicked()),         this,           SLOT(SelectFileButton()));
+  QObject::connect(buttonClose,  SIGNAL(clicked()),         myobjectDialog, SLOT(close()));
+  QObject::connect(buttonExport,  SIGNAL(clicked()),         this,           SLOT(StartExport()));
+  QObject::connect(spinFromDataRecord,     SIGNAL(valueChanged(int)), this,           SLOT(spinFromDataRecordchanged(int)));
+  QObject::connect(spinToDataRecord,     SIGNAL(valueChanged(int)), this,           SLOT(spinToDataRecordchanged(int)));
   QObject::connect(radioButton1, SIGNAL(toggled(bool)),     this,           SLOT(radioButton1Toggled(bool)));
   QObject::connect(radioButton2, SIGNAL(toggled(bool)),     this,           SLOT(radioButton2Toggled(bool)));
 
@@ -140,7 +140,7 @@ UI_ExportFilteredSignalsWindow::UI_ExportFilteredSignalsWindow(QWidget *w_parent
 }
 
 
-void UI_ExportFilteredSignalsWindow::spinBox1changed(int value)
+void UI_ExportFilteredSignalsWindow::spinFromDataRecordchanged(int value)
 {
   long long seconds,
             milliSec;
@@ -149,9 +149,9 @@ void UI_ExportFilteredSignalsWindow::spinBox1changed(int value)
 
   char scratchpad[256];
 
-  QObject::disconnect(spinBox2, SIGNAL(valueChanged(int)), this, SLOT(spinBox2changed(int)));
-  spinBox2->setMinimum(value);
-  QObject::connect(spinBox2,    SIGNAL(valueChanged(int)), this, SLOT(spinBox2changed(int)));
+  QObject::disconnect(spinToDataRecord, SIGNAL(valueChanged(int)), this, SLOT(spinToDataRecordchanged(int)));
+  spinToDataRecord->setMinimum(value);
+  QObject::connect(spinToDataRecord,    SIGNAL(valueChanged(int)), this, SLOT(spinToDataRecordchanged(int)));
 
   if(edfhdr == NULL)
   {
@@ -178,7 +178,7 @@ void UI_ExportFilteredSignalsWindow::spinBox1changed(int value)
 }
 
 
-void UI_ExportFilteredSignalsWindow::spinBox2changed(int value)
+void UI_ExportFilteredSignalsWindow::spinToDataRecordchanged(int value)
 {
   long long seconds,
             milliSec;
@@ -187,9 +187,9 @@ void UI_ExportFilteredSignalsWindow::spinBox2changed(int value)
 
   char scratchpad[256];
 
-  QObject::disconnect(spinBox1, SIGNAL(valueChanged(int)), this, SLOT(spinBox1changed(int)));
-  spinBox1->setMaximum(value);
-  QObject::connect(spinBox1,    SIGNAL(valueChanged(int)), this, SLOT(spinBox1changed(int)));
+  QObject::disconnect(spinFromDataRecord, SIGNAL(valueChanged(int)), this, SLOT(spinFromDataRecordchanged(int)));
+  spinFromDataRecord->setMaximum(value);
+  QObject::connect(spinFromDataRecord,    SIGNAL(valueChanged(int)), this, SLOT(spinFromDataRecordchanged(int)));
 
   if(edfhdr == NULL)
   {
@@ -223,8 +223,8 @@ void UI_ExportFilteredSignalsWindow::radioButton1Toggled(bool checked)
 
   if(checked == true)
   {
-    spinBox1->setEnabled(false);
-    spinBox2->setEnabled(false);
+    spinFromDataRecord->setEnabled(false);
+    spinToDataRecord->setEnabled(false);
     label2->setEnabled(false);
     label3->setEnabled(false);
     label4->setEnabled(false);
@@ -234,10 +234,10 @@ void UI_ExportFilteredSignalsWindow::radioButton1Toggled(bool checked)
     {
       return;
     }
-    spinBox1->setValue(1);
-    spinBox2->setMaximum(edfhdr->datarecords);
-    spinBox2->setValue(edfhdr->datarecords);
-    spinBox1->setMaximum(edfhdr->datarecords);
+    spinFromDataRecord->setValue(1);
+    spinToDataRecord->setMaximum(edfhdr->datarecords);
+    spinToDataRecord->setValue(edfhdr->datarecords);
+    spinFromDataRecord->setMaximum(edfhdr->datarecords);
 
     days = (int)(((edfhdr->datarecords * edfhdr->long_data_record_duration) / TIME_DIMENSION) / 86400LL);
     seconds = (edfhdr->datarecords * edfhdr->long_data_record_duration) / TIME_DIMENSION;
@@ -267,8 +267,8 @@ void UI_ExportFilteredSignalsWindow::radioButton2Toggled(bool checked)
 {
   if(checked == true)
   {
-    spinBox1->setEnabled(true);
-    spinBox2->setEnabled(true);
+    spinFromDataRecord->setEnabled(true);
+    spinToDataRecord->setEnabled(true);
     label2->setEnabled(true);
     label3->setEnabled(true);
     label4->setEnabled(true);
@@ -299,9 +299,9 @@ void UI_ExportFilteredSignalsWindow::SelectFileButton()
 
   file_num = -1;
 
-  pushButton3->setEnabled(false);
-  spinBox1->setEnabled(false);
-  spinBox2->setEnabled(false);
+  buttonExport->setEnabled(false);
+  spinFromDataRecord->setEnabled(false);
+  spinToDataRecord->setEnabled(false);
   radioButton1->setChecked(true);
   radioButton1->setEnabled(false);
   radioButton2->setEnabled(false);
@@ -367,12 +367,12 @@ void UI_ExportFilteredSignalsWindow::SelectFileButton()
 
   label1->setText(inputpath);
 
-  pushButton3->setEnabled(true);
+  buttonExport->setEnabled(true);
 
-  spinBox1->setValue(1);
-  spinBox2->setMaximum(edfhdr->datarecords);
-  spinBox2->setValue(edfhdr->datarecords);
-  spinBox1->setMaximum(edfhdr->datarecords);
+  spinFromDataRecord->setValue(1);
+  spinToDataRecord->setMaximum(edfhdr->datarecords);
+  spinToDataRecord->setValue(edfhdr->datarecords);
+  spinFromDataRecord->setMaximum(edfhdr->datarecords);
 
   radioButton1->setEnabled(true);
   radioButton2->setEnabled(true);
@@ -461,9 +461,9 @@ void UI_ExportFilteredSignalsWindow::StartExport()
   progress.setMinimumDuration(200);
   progress.reset();
 
-  pushButton3->setEnabled(false);
-  spinBox1->setEnabled(false);
-  spinBox2->setEnabled(false);
+  buttonExport->setEnabled(false);
+  spinFromDataRecord->setEnabled(false);
+  spinToDataRecord->setEnabled(false);
   radioButton1->setEnabled(false);
   radioButton2->setEnabled(false);
   label2->setEnabled(false);
@@ -481,11 +481,11 @@ void UI_ExportFilteredSignalsWindow::StartExport()
 
   annot_smp_per_record = 0;
 
-  time_diff = (long long)(spinBox1->value() - 1) * edfhdr->long_data_record_duration;
+  time_diff = (long long)(spinFromDataRecord->value() - 1) * edfhdr->long_data_record_duration;
 
   taltime = (time_diff + edfhdr->starttime_offset) % TIME_DIMENSION;
 
-  endtime = (long long)(spinBox2->value() - (spinBox1->value() - 1)) * edfhdr->long_data_record_duration + taltime;
+  endtime = (long long)(spinToDataRecord->value() - (spinFromDataRecord->value() - 1)) * edfhdr->long_data_record_duration + taltime;
 
   for(i=0, new_edfsignals=0; i<mainwindow->signalcomps; i++)
   {
@@ -510,9 +510,9 @@ void UI_ExportFilteredSignalsWindow::StartExport()
     goto END_1;
   }
 
-  start_datarecord = spinBox1->value() - 1;
+  start_datarecord = spinFromDataRecord->value() - 1;
 
-  datarecords = spinBox2->value() - start_datarecord;
+  datarecords = spinToDataRecord->value() - start_datarecord;
 
   if(edfhdr->edfplus || edfhdr->bdfplus)
   {

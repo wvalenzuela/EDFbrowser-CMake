@@ -94,12 +94,12 @@ QLabel       *label1,
              *label4,
              *label5;
 
-QPushButton  *pushButton1,
-             *pushButton2,
-             *pushButton3;
+QPushButton  *buttonSelectFile,
+             *buttonClose,
+             *buttonExport;
 
-QSpinBox     *spinBox1,
-             *spinBox2;
+QSpinBox     *spinFromDataRecord,
+             *spinToDataRecord;
 
 QRadioButton *radioButton1,
              *radioButton2;
@@ -127,8 +127,8 @@ private slots:
 
 void SelectFileButton();
 void StartExport();
-void spinBox1changed(int);
-void spinBox2changed(int);
+void spinFromDataRecordchanged(int);
+void spinToDataRecordchanged(int);
 void radioButton1Toggled(bool);
 void radioButton2Toggled(bool);
 void populate_tree_view();

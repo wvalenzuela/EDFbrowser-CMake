@@ -514,13 +514,21 @@ void UI_Mainwindow::setup_viewbuf()
 
   for(i=0; i<signalcomps; i++)
   {
-    if(signalcomp[i]->edfhdr->viewtime>=0)  signalcomp[i]->records_in_viewbuf = ((pagetime + (signalcomp[i]->edfhdr->viewtime % signalcomp[i]->edfhdr->long_data_record_duration)) / signalcomp[i]->edfhdr->long_data_record_duration) + 1;
-    else  signalcomp[i]->records_in_viewbuf = ((pagetime + ((-(signalcomp[i]->edfhdr->viewtime)) % signalcomp[i]->edfhdr->long_data_record_duration)) / signalcomp[i]->edfhdr->long_data_record_duration) + 1;
+    if(signalcomp[i]->edfhdr->viewtime>=0)
+    {
+        auto value_1 = signalcomp[i]->edfhdr->viewtime % signalcomp[i]->edfhdr->long_data_record_duration;
+        signalcomp[i]->records_in_viewbuf = ((pagetime + (value_1)) / signalcomp[i]->edfhdr->long_data_record_duration) + 1;
+    }
+    else
+    {
+        auto value_2 = (-(signalcomp[i]->edfhdr->viewtime)) % signalcomp[i]->edfhdr->long_data_record_duration;
+        signalcomp[i]->records_in_viewbuf = ((pagetime + (value_2)) / signalcomp[i]->edfhdr->long_data_record_duration) + 1;
+    }
 
     signalcomp[i]->viewbufsize = signalcomp[i]->records_in_viewbuf * signalcomp[i]->edfhdr->recordsize;
 
-//     printf("viewbuf test: signalcomp: %i  records_in_viewbuf: %lli  recordsize: %i  viewbufsize: %i\n",
-//            i, signalcomp[i]->records_in_viewbuf, signalcomp[i]->edfhdr->recordsize, signalcomp[i]->viewbufsize);
+     printf("viewbuf test: signalcomp: %i  records_in_viewbuf: %lli  recordsize: %i  viewbufsize: %i\n",
+            i, signalcomp[i]->records_in_viewbuf, signalcomp[i]->edfhdr->recordsize, signalcomp[i]->viewbufsize);
 
     signalcomp[i]->samples_on_screen = (int)(((double)pagetime / (double)signalcomp[i]->edfhdr->long_data_record_duration) * (double)signalcomp[i]->edfhdr->edfparam[signalcomp[i]->edfsignal[0]].smp_per_record);
 
@@ -717,12 +725,12 @@ void UI_Mainwindow::setup_viewbuf()
           {
             readsize = dif * signalcomp[i]->edfhdr->recordsize;
 
-//             printf("viewbuf test: signalcomp: %i  viewbufoffset: %i  readsize: %i  records_in_viewbuf: %lli  recordsize: %i\n"
-//                    "viewtime: %lli  datarecords: %lli  dif: %i  readsize: %i  (records_in_viewbuf * recordsize): %lli\n"
-//                    "viewbufsize: %i\n",
-//                    i, signalcomp[i]->viewbufoffset, readsize, signalcomp[i]->records_in_viewbuf, signalcomp[i]->edfhdr->recordsize,
-//                    signalcomp[i]->edfhdr->viewtime, signalcomp[i]->edfhdr->datarecords, dif, readsize,
-//                    signalcomp[i]->records_in_viewbuf * signalcomp[i]->edfhdr->recordsize, signalcomp[i]->viewbufsize);
+             printf("viewbuf test: signalcomp: %i  viewbufoffset: %i  readsize: %i  records_in_viewbuf: %lli  recordsize: %i\n"
+                    "viewtime: %lli  datarecords: %lli  dif: %i  readsize: %i  (records_in_viewbuf * recordsize): %lli\n"
+                    "viewbufsize: %i\n",
+                    i, signalcomp[i]->viewbufoffset, readsize, signalcomp[i]->records_in_viewbuf, signalcomp[i]->edfhdr->recordsize,
+                    signalcomp[i]->edfhdr->viewtime, signalcomp[i]->edfhdr->datarecords, dif, readsize,
+                    signalcomp[i]->records_in_viewbuf * signalcomp[i]->edfhdr->recordsize, signalcomp[i]->viewbufsize);
 
             memset(viewbuf + signalcomp[i]->viewbufoffset + readsize, 0, (signalcomp[i]->records_in_viewbuf * signalcomp[i]->edfhdr->recordsize) - readsize);
           }
@@ -924,16 +932,16 @@ void UI_Mainwindow::setup_viewbuf()
     }
   }
 
-//   printf("\n");
-//
-//   for(int n=0; n<signalcomps; n++)
-//   {
-//     printf("signalcomp: %i  filenum: %i  signal: %i  viewbufoffset: %i  buf_offset: %i\n",
-//            n,
-//            signalcomp[n]->filenum, signalcomp[n]->edfsignal[0],
-//            signalcomp[n]->viewbufoffset,
-//            signalcomp[n]->edfhdr->edfparam[signalcomp[n]->edfsignal[0]].buf_offset);
-//   }
+   printf("\n");
+
+   for(int n=0; n<signalcomps; n++)
+   {
+     printf("signalcomp: %i  filenum: %i  signal: %i  viewbufoffset: %i  buf_offset: %i\n",
+            n,
+            signalcomp[n]->filenum, signalcomp[n]->edfsignal[0],
+            signalcomp[n]->viewbufoffset,
+            signalcomp[n]->edfhdr->edfparam[signalcomp[n]->edfsignal[0]].buf_offset);
+   }
 }
 
 

@@ -1221,451 +1221,461 @@ struct edfhdrblock * EDFfileCheck::check_edf_file(FILE *inputfile, char *txt_str
 
   if(edfhdr->edfplus || edfhdr->bdfplus)
   {
-    error = 0;
-    dotposition = 0;
-    strncpy(scratchpad, edf_hdr + 8, 80);
-    scratchpad[80] = 0;
-    for(i=0; i<80; i++)
-    {
-      if(scratchpad[i]==' ')
-      {
-        dotposition = i;
-        break;
-      }
-    }
-    dotposition++;
-    if((dotposition>73)||(dotposition<2))  error = 1;
-    if(scratchpad[dotposition + 2]!='X')
-    {
-      if(dotposition>65)  error = 1;
-    }
-    if((scratchpad[dotposition]!='M')&&(scratchpad[dotposition]!='F')&&(scratchpad[dotposition]!='X'))  error = 1;
-    dotposition++;
-    if(scratchpad[dotposition]!=' ')  error = 1;
-    if(scratchpad[dotposition + 1]=='X')
-    {
-      if(scratchpad[dotposition + 2]!=' ')  error = 1;
-      if(scratchpad[dotposition + 3]==' ')  error = 1;
-    }
-    else
-    {
-      if(scratchpad[dotposition + 12]!=' ')  error = 1;
-      if(scratchpad[dotposition + 13]==' ')  error = 1;
-      dotposition++;
-      strncpy(scratchpad2, scratchpad + dotposition, 11);
-      scratchpad2[11] = 0;
-      if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))  error = 1;
-      scratchpad2[2] = 0;
-      scratchpad2[6] = 0;
-      if((scratchpad2[0]<48)||(scratchpad2[0]>57))  error = 1;
-      if((scratchpad2[1]<48)||(scratchpad2[1]>57))  error = 1;
-      if((scratchpad2[7]<48)||(scratchpad2[7]>57))  error = 1;
-      if((scratchpad2[8]<48)||(scratchpad2[8]>57))  error = 1;
-      if((scratchpad2[9]<48)||(scratchpad2[9]>57))  error = 1;
-      if((scratchpad2[10]<48)||(scratchpad2[10]>57))  error = 1;
-      if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))  error = 1;
-      if(strcmp(scratchpad2 + 3, "JAN"))
-        if(strcmp(scratchpad2 + 3, "FEB"))
-          if(strcmp(scratchpad2 + 3, "MAR"))
-            if(strcmp(scratchpad2 + 3, "APR"))
-              if(strcmp(scratchpad2 + 3, "MAY"))
-                if(strcmp(scratchpad2 + 3, "JUN"))
-                  if(strcmp(scratchpad2 + 3, "JUL"))
-                    if(strcmp(scratchpad2 + 3, "AUG"))
-                      if(strcmp(scratchpad2 + 3, "SEP"))
-                        if(strcmp(scratchpad2 + 3, "OCT"))
-                          if(strcmp(scratchpad2 + 3, "NOV"))
-                            if(strcmp(scratchpad2 + 3, "DEC"))
-                              error = 1;
-    }
-
-    if(error)
-    {
-      if(edfhdr->edfplus)
-      {
-        sprintf(txt_string, "Error, file is marked as EDF+ but local patient identification field does not\ncomply to the EDF+ standard:\n"
-              "\"%.80s\"",
-              edf_hdr+8);
-      }
-      if(edfhdr->bdfplus)
-      {
-        sprintf(txt_string, "Error, file is marked as BDF+ but local patient identification field does not\ncomply to the BDF+ standard:\n"
-              "\"%.80s\"",
-              edf_hdr+8);
-      }
-      free(edf_hdr);
-      free(edfhdr->edfparam);
-      free(edfhdr);
-      return NULL;
-    }
-
-    p = 0;
-    if(edfhdr->patient[p]=='X')
-    {
-      edfhdr->plus_patientcode[0] = 0;
-      p += 2;
-    }
-    else
-    {
-      for(i=0; i<(80-p); i++)
-      {
-        if(edfhdr->patient[i+p]==' ')
-        {
-          break;
-        }
-        edfhdr->plus_patientcode[i] = edfhdr->patient[i+p];
-        if(edfhdr->plus_patientcode[i]=='_')  edfhdr->plus_patientcode[i] = ' ';
-      }
-      edfhdr->plus_patientcode[i] = 0;
-      p += i + 1;
-    }
-
-    if(edfhdr->patient[p]=='M')
-    {
-      strcpy(edfhdr->plus_gender, "Male");
-    }
-    if(edfhdr->patient[p]=='F')
-    {
-      strcpy(edfhdr->plus_gender, "Female");
-    }
-    if(edfhdr->patient[p]=='X')
-    {
-      edfhdr->plus_gender[0] = 0;
-    }
-    for(i=0; i<(80-p);i++)
-    {
-      if(edfhdr->patient[i+p]==' ')
-      {
-        break;
-      }
-    }
-    p += i + 1;
-
-    if(edfhdr->patient[p]=='X')
-    {
-      edfhdr->plus_birthdate[0] = 0;
-      p += 2;
-    }
-    else
-    {
-      for(i=0; i<(80-p); i++)
-      {
-        if(edfhdr->patient[i+p]==' ')
-        {
-          break;
-        }
-        edfhdr->plus_birthdate[i] = edfhdr->patient[i+p];
-      }
-      edfhdr->plus_birthdate[2] = ' ';
-      edfhdr->plus_birthdate[3] += 32;
-      edfhdr->plus_birthdate[4] += 32;
-      edfhdr->plus_birthdate[5] += 32;
-      edfhdr->plus_birthdate[6] = ' ';
-      edfhdr->plus_birthdate[11] = 0;
-      p += i + 1;
-    }
-
-    for(i=0; i<(80-p);i++)
-    {
-      if(edfhdr->patient[i+p]==' ')
-      {
-        break;
-      }
-      edfhdr->plus_patient_name[i] = edfhdr->patient[i+p];
-      if(edfhdr->plus_patient_name[i]=='_')  edfhdr->plus_patient_name[i] = ' ';
-    }
-    edfhdr->plus_patient_name[i] = 0;
-    p += i + 1;
-
-    for(i=0; i<(80-p);i++)
-    {
-      edfhdr->plus_patient_additional[i] = edfhdr->patient[i+p];
-    }
-    edfhdr->plus_patient_additional[i] = 0;
-    p += i + 1;
-  }
-
-/********************* EDF+ RECORDINGFIELD *********************************************/
-
-  if(edfhdr->edfplus || edfhdr->bdfplus)
-  {
-    error = 0;
-    strncpy(scratchpad, edf_hdr + 88, 80);
-    scratchpad[80] = 0;
-    if(strncmp(scratchpad, "Startdate ", 10))  error = 1;
-    if(scratchpad[10]=='X')
-    {
-      if(scratchpad[11]!=' ')  error = 1;
-      if(scratchpad[12]==' ')  error = 1;
-      p = 12;
-    }
-    else
-    {
-      if(scratchpad[21]!=' ')  error = 1;
-      if(scratchpad[22]==' ')  error = 1;
-      p = 22;
-      strncpy(scratchpad2, scratchpad + 10, 11);
-      scratchpad2[11] = 0;
-      if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))  error = 1;
-      scratchpad2[2] = 0;
-      scratchpad2[6] = 0;
-      if((scratchpad2[0]<48)||(scratchpad2[0]>57))  error = 1;
-      if((scratchpad2[1]<48)||(scratchpad2[1]>57))  error = 1;
-      if((scratchpad2[7]<48)||(scratchpad2[7]>57))  error = 1;
-      if((scratchpad2[8]<48)||(scratchpad2[8]>57))  error = 1;
-      if((scratchpad2[9]<48)||(scratchpad2[9]>57))  error = 1;
-      if((scratchpad2[10]<48)||(scratchpad2[10]>57))  error = 1;
-      if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))  error = 1;
-      r = 0;
-      if(!strcmp(scratchpad2 + 3, "JAN"))  r = 1;
-        else if(!strcmp(scratchpad2 + 3, "FEB"))  r = 2;
-          else if(!strcmp(scratchpad2 + 3, "MAR"))  r = 3;
-            else if(!strcmp(scratchpad2 + 3, "APR"))  r = 4;
-              else if(!strcmp(scratchpad2 + 3, "MAY"))  r = 5;
-                else if(!strcmp(scratchpad2 + 3, "JUN"))  r = 6;
-                  else if(!strcmp(scratchpad2 + 3, "JUL"))  r = 7;
-                    else if(!strcmp(scratchpad2 + 3, "AUG"))  r = 8;
-                      else if(!strcmp(scratchpad2 + 3, "SEP"))  r = 9;
-                        else if(!strcmp(scratchpad2 + 3, "OCT"))  r = 10;
-                          else if(!strcmp(scratchpad2 + 3, "NOV"))  r = 11;
-                            else if(!strcmp(scratchpad2 + 3, "DEC"))  r = 12;
-                              else error = 1;
-    }
-
-    n = 0;
-    for(i=p; i<80; i++)
-    {
-      if(i>78)
-      {
-        error = 1;
-        break;
-      }
-      if(scratchpad[i]==' ')
-      {
-        n++;
-        if(scratchpad[i + 1]==' ')
-        {
-          error = 1;
-          break;
-        }
-      }
-      if(n>1)  break;
-    }
-
-    if(error)
-    {
-      if(edfhdr->edfplus)
-      {
-        sprintf(txt_string, "Error, file is marked as EDF+ but recording field does not comply to the\nEDF+ standard:\n"
-              "\"%.80s\"",
-              edf_hdr+88);
-      }
-      if(edfhdr->bdfplus)
-      {
-        sprintf(txt_string, "Error, file is marked as BDF+ but recording field does not comply to the\nBDF+ standard:\n"
-              "\"%.80s\"",
-              edf_hdr+88);
-      }
-      free(edf_hdr);
-      free(edfhdr->edfparam);
-      return NULL;
-    }
-
-    if(edf_hdr[98]!='X')
-    {
       error = 0;
-
-      strncpy(scratchpad, edf_hdr + 168, 8);
-      scratchpad[2] = 0;
-      scratchpad[5] = 0;
-      scratchpad[8] = 0;
-
-      if(atoi(scratchpad)!=atoi(scratchpad2))  error = 1;
-      if(atoi(scratchpad+3)!=r)  error = 1;
-      if(atoi(scratchpad+6)!=atoi(scratchpad2+9))  error = 1;
+      dotposition = 0;
+      strncpy(scratchpad, edf_hdr + 8, 80);
+      scratchpad[80] = 0;
+      printf("(%s)",scratchpad);
+      
+      for(i=0; i<80; i++)
+      {
+          if(scratchpad[i]==' ')
+          {
+              dotposition = i;
+              break;
+          }
+      }
+      dotposition++;
+      if((dotposition>73)||(dotposition<2))
+          error = 1;
+      if(scratchpad[dotposition + 2]!='X')
+      {
+          if(dotposition>65)
+              error = 1;
+      }
+      if((scratchpad[dotposition]!='M')&&(scratchpad[dotposition]!='F')&&(scratchpad[dotposition]!='X'))
+          error = 1;
+      dotposition++;
+      if(scratchpad[dotposition]!=' ')
+          error = 1;
+      if(scratchpad[dotposition + 1]=='X')
+      {
+          if(scratchpad[dotposition + 2]!=' ')
+              error = 1;
+          if(scratchpad[dotposition + 3]==' ')
+              error = 1;
+      }
+      else
+      {
+          if(scratchpad[dotposition + 12]!=' ')
+              error = 1;
+          if(scratchpad[dotposition + 13]==' ')
+              error = 1;
+          dotposition++;
+          strncpy(scratchpad2, scratchpad + dotposition, 11);
+          scratchpad2[11] = 0;
+          if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))
+              error = 1;
+          scratchpad2[2] = 0;
+          scratchpad2[6] = 0;
+          if((scratchpad2[0]<48)||(scratchpad2[0]>57))  error = 1;
+          if((scratchpad2[1]<48)||(scratchpad2[1]>57))  error = 1;
+          if((scratchpad2[7]<48)||(scratchpad2[7]>57))  error = 1;
+          if((scratchpad2[8]<48)||(scratchpad2[8]>57))  error = 1;
+          if((scratchpad2[9]<48)||(scratchpad2[9]>57))  error = 1;
+          if((scratchpad2[10]<48)||(scratchpad2[10]>57))  error = 1;
+          if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))  error = 1;
+          if(strcmp(scratchpad2 + 3, "JAN"))
+              if(strcmp(scratchpad2 + 3, "FEB"))
+                  if(strcmp(scratchpad2 + 3, "MAR"))
+                      if(strcmp(scratchpad2 + 3, "APR"))
+                          if(strcmp(scratchpad2 + 3, "MAY"))
+                              if(strcmp(scratchpad2 + 3, "JUN"))
+                                  if(strcmp(scratchpad2 + 3, "JUL"))
+                                      if(strcmp(scratchpad2 + 3, "AUG"))
+                                          if(strcmp(scratchpad2 + 3, "SEP"))
+                                              if(strcmp(scratchpad2 + 3, "OCT"))
+                                                  if(strcmp(scratchpad2 + 3, "NOV"))
+                                                      if(strcmp(scratchpad2 + 3, "DEC"))
+                                                          error = 1;
+      }
       if(error)
       {
-        if(edfhdr->edfplus)
-        {
-          sprintf(txt_string, "Error, file is marked as EDF+ but startdate field does not match with startdate in\nrecordfield:\n"
-                "\"%.8s\" <-> \"%.11s\".",
-                edf_hdr+168,
-                edf_hdr+98);
-        }
-        if(edfhdr->bdfplus)
-        {
-          sprintf(txt_string, "Error, file is marked as BDF+ but startdate field does not match with startdate in\nrecordfield:\n"
-                "\"%.8s\" <-> \"%.11s\".",
-                edf_hdr+168,
-                edf_hdr+98);
-        }
-        free(edf_hdr);
-        free(edfhdr->edfparam);
-        free(edfhdr);
-        return NULL;
+          if(edfhdr->edfplus)
+          {
+              sprintf(txt_string, "Error, file is marked as EDF+ but local patient identification field does not\ncomply to the EDF+ standard:\n"
+                      "\"%.80s\"",
+                      edf_hdr+8);
+          }
+          if(edfhdr->bdfplus)
+          {
+              sprintf(txt_string, "Error, file is marked as BDF+ but local patient identification field does not\ncomply to the BDF+ standard:\n"
+                      "\"%.80s\"",
+                      edf_hdr+8);
+          }
+          free(edf_hdr);
+          free(edfhdr->edfparam);
+          free(edfhdr);
+          return NULL;
       }
-
-      date_time.year = atoi(scratchpad2 + 7);
-
-      if(date_time.year<1970)
+      
+      p = 0;
+      if(edfhdr->patient[p]=='X')
       {
-        sprintf(txt_string, "Error, recording startdate is older than 1970.");
-        free(edf_hdr);
-        free(edfhdr->edfparam);
-        free(edfhdr);
-        return NULL;
+          edfhdr->plus_patientcode[0] = 0;
+          p += 2;
       }
-
-      date_time_to_utc(&edfhdr->utc_starttime, date_time);
-    }
-
-    p = 10;
-    for(i=0; i<(80-p); i++)
-    {
-      if(edfhdr->recording[i+p]==' ')
+      else
       {
-        break;
+          for(i=0; i<(80-p); i++)
+          {
+              if(edfhdr->patient[i+p]==' ')
+              {
+                  break;
+              }
+              edfhdr->plus_patientcode[i] = edfhdr->patient[i+p];
+              if(edfhdr->plus_patientcode[i]=='_')  edfhdr->plus_patientcode[i] = ' ';
+          }
+          edfhdr->plus_patientcode[i] = 0;
+          p += i + 1;
       }
-      edfhdr->plus_startdate[i] = edfhdr->recording[i+p];
-    }
-    edfhdr->plus_startdate[2] = ' ';
-    edfhdr->plus_startdate[3] += 32;
-    edfhdr->plus_startdate[4] += 32;
-    edfhdr->plus_startdate[5] += 32;
-    edfhdr->plus_startdate[6] = ' ';
-    edfhdr->plus_startdate[11] = 0;
-    p += i + 1;
-
-    if(edfhdr->recording[p]=='X')
-    {
-      edfhdr->plus_admincode[0] = 0;
-      p += 2;
-    }
-    else
-    {
-      for(i=0; i<(80-p); i++)
+      
+      if(edfhdr->patient[p]=='M')
       {
-        if(edfhdr->recording[i+p]==' ')
-        {
-          break;
-        }
-        edfhdr->plus_admincode[i] = edfhdr->recording[i+p];
-        if(edfhdr->plus_admincode[i]=='_')  edfhdr->plus_admincode[i] = ' ';
+          strcpy(edfhdr->plus_gender, "Male");
       }
-      edfhdr->plus_admincode[i] = 0;
+      if(edfhdr->patient[p]=='F')
+      {
+          strcpy(edfhdr->plus_gender, "Female");
+      }
+      if(edfhdr->patient[p]=='X')
+      {
+          edfhdr->plus_gender[0] = 0;
+      }
+      for(i=0; i<(80-p);i++)
+      {
+          if(edfhdr->patient[i+p]==' ')
+          {
+              break;
+          }
+      }
       p += i + 1;
-    }
-
-    if(edfhdr->recording[p]=='X')
-    {
-      edfhdr->plus_technician[0] = 0;
-      p += 2;
-    }
-    else
-    {
-      for(i=0; i<(80-p); i++)
+      
+      if(edfhdr->patient[p]=='X')
       {
-        if(edfhdr->recording[i+p]==' ')
-        {
-          break;
-        }
-        edfhdr->plus_technician[i] = edfhdr->recording[i+p];
-        if(edfhdr->plus_technician[i]=='_')  edfhdr->plus_technician[i] = ' ';
+          edfhdr->plus_birthdate[0] = 0;
+          p += 2;
       }
-      edfhdr->plus_technician[i] = 0;
-      p += i + 1;
-    }
-
-    if(edfhdr->recording[p]=='X')
-    {
-      edfhdr->plus_equipment[0] = 0;
-      p += 2;
-    }
-    else
-    {
-      for(i=0; i<(80-p); i++)
+      else
       {
-        if(edfhdr->recording[i+p]==' ')
-        {
-          break;
-        }
-        edfhdr->plus_equipment[i] = edfhdr->recording[i+p];
-        if(edfhdr->plus_equipment[i]=='_')  edfhdr->plus_equipment[i] = ' ';
+          for(i=0; i<(80-p); i++)
+          {
+              if(edfhdr->patient[i+p]==' ')
+              {
+                  break;
+              }
+              edfhdr->plus_birthdate[i] = edfhdr->patient[i+p];
+          }
+          edfhdr->plus_birthdate[2] = ' ';
+          edfhdr->plus_birthdate[3] += 32;
+          edfhdr->plus_birthdate[4] += 32;
+          edfhdr->plus_birthdate[5] += 32;
+          edfhdr->plus_birthdate[6] = ' ';
+          edfhdr->plus_birthdate[11] = 0;
+          p += i + 1;
       }
-      edfhdr->plus_equipment[i] = 0;
+      
+      for(i=0; i<(80-p);i++)
+      {
+          if(edfhdr->patient[i+p]==' ')
+          {
+              break;
+          }
+          edfhdr->plus_patient_name[i] = edfhdr->patient[i+p];
+          if(edfhdr->plus_patient_name[i]=='_')  edfhdr->plus_patient_name[i] = ' ';
+      }
+      edfhdr->plus_patient_name[i] = 0;
       p += i + 1;
-    }
-
-    for(i=0; i<(80-p);i++)
-    {
-      edfhdr->plus_recording_additional[i] = edfhdr->recording[i+p];
-    }
-    edfhdr->plus_recording_additional[i] = 0;
-    p += i + 1;
+      
+      for(i=0; i<(80-p);i++)
+      {
+          edfhdr->plus_patient_additional[i] = edfhdr->patient[i+p];
+      }
+      edfhdr->plus_patient_additional[i] = 0;
+      p += i + 1;
   }
-
-/********************* FILESIZE *********************************************/
-
-  edfhdr->hdrsize = edfhdr->edfsignals * 256 + 256;
-
-  if(live_stream)
-  {
-    fseeko(inputfile, 0LL, SEEK_END);
-
-    edfhdr->datarecords = ftello(inputfile);
-
-    edfhdr->datarecords -= (long long)edfhdr->hdrsize;
-
-    edfhdr->datarecords /= (long long)edfhdr->recordsize;
-  }
-  else
-  {
-    l_tmp = edfhdr->recordsize;
-    l_tmp *= edfhdr->datarecords;
-    l_tmp += (edfhdr->edfsignals * 256 + 256);
-
-    fseeko(inputfile, 0LL, SEEK_END);
-    l_tmp2 = ftello(inputfile);
-
-    if(l_tmp != l_tmp2)
+    
+    /********************* EDF+ RECORDINGFIELD *********************************************/
+    
+    if(edfhdr->edfplus || edfhdr->bdfplus)
     {
+        error = 0;
+        strncpy(scratchpad, edf_hdr + 88, 80);
+        scratchpad[80] = 0;
+        if(strncmp(scratchpad, "Startdate ", 10))  error = 1;
+        if(scratchpad[10]=='X')
+        {
+            if(scratchpad[11]!=' ')  error = 1;
+            if(scratchpad[12]==' ')  error = 1;
+            p = 12;
+        }
+        else
+        {
+            if(scratchpad[21]!=' ')  error = 1;
+            if(scratchpad[22]==' ')  error = 1;
+            p = 22;
+            strncpy(scratchpad2, scratchpad + 10, 11);
+            scratchpad2[11] = 0;
+            if((scratchpad2[2]!='-')||(scratchpad2[6]!='-'))  error = 1;
+            scratchpad2[2] = 0;
+            scratchpad2[6] = 0;
+            if((scratchpad2[0]<48)||(scratchpad2[0]>57))  error = 1;
+            if((scratchpad2[1]<48)||(scratchpad2[1]>57))  error = 1;
+            if((scratchpad2[7]<48)||(scratchpad2[7]>57))  error = 1;
+            if((scratchpad2[8]<48)||(scratchpad2[8]>57))  error = 1;
+            if((scratchpad2[9]<48)||(scratchpad2[9]>57))  error = 1;
+            if((scratchpad2[10]<48)||(scratchpad2[10]>57))  error = 1;
+            if((atoi(scratchpad2)<1)||(atoi(scratchpad2)>31))  error = 1;
+            r = 0;
+            if(!strcmp(scratchpad2 + 3, "JAN"))  r = 1;
+            else if(!strcmp(scratchpad2 + 3, "FEB"))  r = 2;
+            else if(!strcmp(scratchpad2 + 3, "MAR"))  r = 3;
+            else if(!strcmp(scratchpad2 + 3, "APR"))  r = 4;
+            else if(!strcmp(scratchpad2 + 3, "MAY"))  r = 5;
+            else if(!strcmp(scratchpad2 + 3, "JUN"))  r = 6;
+            else if(!strcmp(scratchpad2 + 3, "JUL"))  r = 7;
+            else if(!strcmp(scratchpad2 + 3, "AUG"))  r = 8;
+            else if(!strcmp(scratchpad2 + 3, "SEP"))  r = 9;
+            else if(!strcmp(scratchpad2 + 3, "OCT"))  r = 10;
+            else if(!strcmp(scratchpad2 + 3, "NOV"))  r = 11;
+            else if(!strcmp(scratchpad2 + 3, "DEC"))  r = 12;
+            else error = 1;
+        }
+        
+        n = 0;
+        for(i=p; i<80; i++)
+        {
+            if(i>78)
+            {
+                error = 1;
+                break;
+            }
+            if(scratchpad[i]==' ')
+            {
+                n++;
+                if(scratchpad[i + 1]==' ')
+                {
+                    error = 1;
+                    break;
+                }
+            }
+            if(n>1)  break;
+        }
+        
+        if(error)
+        {
+            if(edfhdr->edfplus)
+            {
+                sprintf(txt_string, "Error, file is marked as EDF+ but recording field does not comply to the\nEDF+ standard:\n"
+                        "\"%.80s\"",
+                        edf_hdr+88);
+            }
+            if(edfhdr->bdfplus)
+            {
+                sprintf(txt_string, "Error, file is marked as BDF+ but recording field does not comply to the\nBDF+ standard:\n"
+                        "\"%.80s\"",
+                        edf_hdr+88);
+            }
+            free(edf_hdr);
+            free(edfhdr->edfparam);
+            return NULL;
+        }
+        
+        if(edf_hdr[98]!='X')
+        {
+            error = 0;
+            
+            strncpy(scratchpad, edf_hdr + 168, 8);
+            scratchpad[2] = 0;
+            scratchpad[5] = 0;
+            scratchpad[8] = 0;
+            
+            if(atoi(scratchpad)!=atoi(scratchpad2))  error = 1;
+            if(atoi(scratchpad+3)!=r)  error = 1;
+            if(atoi(scratchpad+6)!=atoi(scratchpad2+9))  error = 1;
+            if(error)
+            {
+                if(edfhdr->edfplus)
+                {
+                    sprintf(txt_string, "Error, file is marked as EDF+ but startdate field does not match with startdate in\nrecordfield:\n"
+                            "\"%.8s\" <-> \"%.11s\".",
+                            edf_hdr+168,
+                            edf_hdr+98);
+                }
+                if(edfhdr->bdfplus)
+                {
+                    sprintf(txt_string, "Error, file is marked as BDF+ but startdate field does not match with startdate in\nrecordfield:\n"
+                            "\"%.8s\" <-> \"%.11s\".",
+                            edf_hdr+168,
+                            edf_hdr+98);
+                }
+                free(edf_hdr);
+                free(edfhdr->edfparam);
+                free(edfhdr);
+                return NULL;
+            }
+            
+            date_time.year = atoi(scratchpad2 + 7);
+            
+            if(date_time.year<1970)
+            {
+                sprintf(txt_string, "Error, recording startdate is older than 1970.");
+                free(edf_hdr);
+                free(edfhdr->edfparam);
+                free(edfhdr);
+                return NULL;
+            }
+            
+            date_time_to_utc(&edfhdr->utc_starttime, date_time);
+        }
+        
+        p = 10;
+        for(i=0; i<(80-p); i++)
+        {
+            if(edfhdr->recording[i+p]==' ')
+            {
+                break;
+            }
+            edfhdr->plus_startdate[i] = edfhdr->recording[i+p];
+        }
+        edfhdr->plus_startdate[2] = ' ';
+        edfhdr->plus_startdate[3] += 32;
+        edfhdr->plus_startdate[4] += 32;
+        edfhdr->plus_startdate[5] += 32;
+        edfhdr->plus_startdate[6] = ' ';
+        edfhdr->plus_startdate[11] = 0;
+        p += i + 1;
+        
+        if(edfhdr->recording[p]=='X')
+        {
+            edfhdr->plus_admincode[0] = 0;
+            p += 2;
+        }
+        else
+        {
+            for(i=0; i<(80-p); i++)
+            {
+                if(edfhdr->recording[i+p]==' ')
+                {
+                    break;
+                }
+                edfhdr->plus_admincode[i] = edfhdr->recording[i+p];
+                if(edfhdr->plus_admincode[i]=='_')  edfhdr->plus_admincode[i] = ' ';
+            }
+            edfhdr->plus_admincode[i] = 0;
+            p += i + 1;
+        }
+        
+        if(edfhdr->recording[p]=='X')
+        {
+            edfhdr->plus_technician[0] = 0;
+            p += 2;
+        }
+        else
+        {
+            for(i=0; i<(80-p); i++)
+            {
+                if(edfhdr->recording[i+p]==' ')
+                {
+                    break;
+                }
+                edfhdr->plus_technician[i] = edfhdr->recording[i+p];
+                if(edfhdr->plus_technician[i]=='_')  edfhdr->plus_technician[i] = ' ';
+            }
+            edfhdr->plus_technician[i] = 0;
+            p += i + 1;
+        }
+        
+        if(edfhdr->recording[p]=='X')
+        {
+            edfhdr->plus_equipment[0] = 0;
+            p += 2;
+        }
+        else
+        {
+            for(i=0; i<(80-p); i++)
+            {
+                if(edfhdr->recording[i+p]==' ')
+                {
+                    break;
+                }
+                edfhdr->plus_equipment[i] = edfhdr->recording[i+p];
+                if(edfhdr->plus_equipment[i]=='_')  edfhdr->plus_equipment[i] = ' ';
+            }
+            edfhdr->plus_equipment[i] = 0;
+            p += i + 1;
+        }
+        
+        for(i=0; i<(80-p);i++)
+        {
+            edfhdr->plus_recording_additional[i] = edfhdr->recording[i+p];
+        }
+        edfhdr->plus_recording_additional[i] = 0;
+        p += i + 1;
+    }
+    
+    /********************* FILESIZE *********************************************/
+    
+    edfhdr->hdrsize = edfhdr->edfsignals * 256 + 256;
+    
+    if(live_stream)
+    {
+        fseeko(inputfile, 0LL, SEEK_END);
+        
+        edfhdr->datarecords = ftello(inputfile);
+        
+        edfhdr->datarecords -= (long long)edfhdr->hdrsize;
+        
+        edfhdr->datarecords /= (long long)edfhdr->recordsize;
+    }
+    else
+    {
+        l_tmp = edfhdr->recordsize;
+        l_tmp *= edfhdr->datarecords;
+        l_tmp += (edfhdr->edfsignals * 256 + 256);
+        
+        fseeko(inputfile, 0LL, SEEK_END);
+        l_tmp2 = ftello(inputfile);
+        
+        if(l_tmp != l_tmp2)
+        {
 #ifdef Q_OS_WIN32
-      __mingw_sprintf(txt_string, "Error, filesize does not match with the calculated filesize based on the parameters\n"
-                          "in the header. Filesize is %lli and filesize according to header is %lli.\n"
-                          "You can fix this problem with the header editor, check the manual for details.",
-                          l_tmp2, l_tmp);
+            __mingw_sprintf(txt_string, "Error, filesize does not match with the calculated filesize based on the parameters\n"
+                            "in the header. Filesize is %lli and filesize according to header is %lli.\n"
+                            "You can fix this problem with the header editor, check the manual for details.",
+                            l_tmp2, l_tmp);
 #else
-      sprintf(txt_string, "Error, filesize does not match with the calculated filesize based on the parameters\n"
-                          "in the header. Filesize is %lli and filesize according to header is %lli.\n"
-                          "You can fix this problem with the header editor, check the manual for details.",
-                          l_tmp2, l_tmp);
+            sprintf(txt_string, "Error, filesize does not match with the calculated filesize based on the parameters\n"
+                    "in the header. Filesize is %lli and filesize according to header is %lli.\n"
+                    "You can fix this problem with the header editor, check the manual for details.",
+                    l_tmp2, l_tmp);
 #endif
-      free(edf_hdr);
-      free(edfhdr->edfparam);
-      free(edfhdr);
-      return NULL;
+            free(edf_hdr);
+            free(edfhdr->edfparam);
+            free(edfhdr);
+            return NULL;
+        }
     }
-  }
-
-  n = 0;
-
-  for(i=0; i<edfhdr->edfsignals; i++)
-  {
-    edfhdr->edfparam[i].buf_offset = n;
-    if(edfhdr->bdf)  n += edfhdr->edfparam[i].smp_per_record * 3;
-    else  n += edfhdr->edfparam[i].smp_per_record * 2;
-
-    edfhdr->edfparam[i].bitvalue = (edfhdr->edfparam[i].phys_max - edfhdr->edfparam[i].phys_min) / (edfhdr->edfparam[i].dig_max - edfhdr->edfparam[i].dig_min);
-    edfhdr->edfparam[i].offset = edfhdr->edfparam[i].phys_max / edfhdr->edfparam[i].bitvalue - edfhdr->edfparam[i].dig_max;
-  }
-
-  edfhdr->recording_len_sec = (int)((edfhdr->datarecords * edfhdr->long_data_record_duration) / TIME_DIMENSION);
-
-  txt_string[0] = 0;
-
-  free(edf_hdr);
-
-  return edfhdr;
+    
+    n = 0;
+    
+    for(i=0; i<edfhdr->edfsignals; i++)
+    {
+        edfhdr->edfparam[i].buf_offset = n;
+        if(edfhdr->bdf)  n += edfhdr->edfparam[i].smp_per_record * 3;
+        else  n += edfhdr->edfparam[i].smp_per_record * 2;
+        
+        edfhdr->edfparam[i].bitvalue = (edfhdr->edfparam[i].phys_max - edfhdr->edfparam[i].phys_min) / (edfhdr->edfparam[i].dig_max - edfhdr->edfparam[i].dig_min);
+        edfhdr->edfparam[i].offset = edfhdr->edfparam[i].phys_max / edfhdr->edfparam[i].bitvalue - edfhdr->edfparam[i].dig_max;
+    }
+    
+    edfhdr->recording_len_sec = (int)((edfhdr->datarecords * edfhdr->long_data_record_duration) / TIME_DIMENSION);
+    
+    txt_string[0] = 0;
+    
+    free(edf_hdr);
+    
+    return edfhdr;
 }
 
 
@@ -1673,225 +1683,225 @@ struct edfhdrblock * EDFfileCheck::check_edf_file(FILE *inputfile, char *txt_str
 
 int EDFfileCheck::is_integer_number(char *str)
 {
-  int i=0, l, hasspace = 0, hassign=0, digit=0;
-
-  l = strlen(str);
-
-  if(!l)  return 1;
-
-  if((str[0]=='+')||(str[0]=='-'))
-  {
-    hassign++;
-    i++;
-  }
-
-  for(; i<l; i++)
-  {
-    if(str[i]==' ')
+    int i=0, l, hasspace = 0, hassign=0, digit=0;
+    
+    l = strlen(str);
+    
+    if(!l)  return 1;
+    
+    if((str[0]=='+')||(str[0]=='-'))
     {
-      if(!digit)
-      {
-        return 1;
-      }
-      hasspace++;
+        hassign++;
+        i++;
     }
-    else
+    
+    for(; i<l; i++)
     {
-      if((str[i]<48)||(str[i]>57))
-      {
-        return 1;
-      }
-      else
-      {
-        if(hasspace)
+        if(str[i]==' ')
         {
-          return 1;
+            if(!digit)
+            {
+                return 1;
+            }
+            hasspace++;
         }
-        digit++;
-      }
+        else
+        {
+            if((str[i]<48)||(str[i]>57))
+            {
+                return 1;
+            }
+            else
+            {
+                if(hasspace)
+                {
+                    return 1;
+                }
+                digit++;
+            }
+        }
     }
-  }
-
-  if(digit)  return 0;
-  else  return 1;
+    
+    if(digit)  return 0;
+    else  return 1;
 }
 
 
 
 int EDFfileCheck::is_number(char *str)
 {
-  int i=0, l, hasspace = 0, hassign=0, digit=0, hasdot=0, hasexp=0;
-
-  l = strlen(str);
-
-  if(!l)  return 1;
-
-  if((str[0]=='+')||(str[0]=='-'))
-  {
-    hassign++;
-    i++;
-  }
-
-  for(; i<l; i++)
-  {
-    if((str[i]=='e')||(str[i]=='E'))
+    int i=0, l, hasspace = 0, hassign=0, digit=0, hasdot=0, hasexp=0;
+    
+    l = strlen(str);
+    
+    if(!l)  return 1;
+    
+    if((str[0]=='+')||(str[0]=='-'))
     {
-      if((!digit)||hasexp)
-      {
-        return 1;
-      }
-      hasexp++;
-      hassign = 0;
-      digit = 0;
-
-      break;
+        hassign++;
+        i++;
     }
-
-    if(str[i]==' ')
-    {
-      if(!digit)
-      {
-        return 1;
-      }
-      hasspace++;
-    }
-    else
-    {
-      if(((str[i]<48)||(str[i]>57))&&str[i]!='.')
-      {
-        return 1;
-      }
-      else
-      {
-        if(hasspace)
-        {
-          return 1;
-        }
-        if(str[i]=='.')
-        {
-          if(hasdot)  return 1;
-          hasdot++;
-        }
-        else
-        {
-          digit++;
-        }
-      }
-    }
-  }
-
-  if(hasexp)
-  {
-    if(++i==l)
-    {
-      return 1;
-    }
-
-    if((str[i]=='+')||(str[i]=='-'))
-    {
-      hassign++;
-      i++;
-    }
-
+    
     for(; i<l; i++)
     {
-      if(str[i]==' ')
-      {
-        if(!digit)
+        if((str[i]=='e')||(str[i]=='E'))
         {
-          return 1;
+            if((!digit)||hasexp)
+            {
+                return 1;
+            }
+            hasexp++;
+            hassign = 0;
+            digit = 0;
+            
+            break;
         }
-        hasspace++;
-      }
-      else
-      {
-        if((str[i]<48)||(str[i]>57))
+        
+        if(str[i]==' ')
         {
-          return 1;
+            if(!digit)
+            {
+                return 1;
+            }
+            hasspace++;
         }
         else
         {
-          if(hasspace)
-          {
-            return 1;
-          }
-
-          digit++;
+            if(((str[i]<48)||(str[i]>57))&&str[i]!='.')
+            {
+                return 1;
+            }
+            else
+            {
+                if(hasspace)
+                {
+                    return 1;
+                }
+                if(str[i]=='.')
+                {
+                    if(hasdot)  return 1;
+                    hasdot++;
+                }
+                else
+                {
+                    digit++;
+                }
+            }
         }
-      }
     }
-  }
-
-  if(digit)  return 0;
-  else  return 1;
+    
+    if(hasexp)
+    {
+        if(++i==l)
+        {
+            return 1;
+        }
+        
+        if((str[i]=='+')||(str[i]=='-'))
+        {
+            hassign++;
+            i++;
+        }
+        
+        for(; i<l; i++)
+        {
+            if(str[i]==' ')
+            {
+                if(!digit)
+                {
+                    return 1;
+                }
+                hasspace++;
+            }
+            else
+            {
+                if((str[i]<48)||(str[i]>57))
+                {
+                    return 1;
+                }
+                else
+                {
+                    if(hasspace)
+                    {
+                        return 1;
+                    }
+                    
+                    digit++;
+                }
+            }
+        }
+    }
+    
+    if(digit)  return 0;
+    else  return 1;
 }
 
 
 long long EDFfileCheck::get_long_duration(char *str)
 {
-  int i, len=8, hasdot=0, dotposition=0;
-
-  long long value=0, radix;
-
-  if((str[0] == '+') || (str[0] == '-'))
-  {
-    for(i=0; i<7; i++)
+    int i, len=8, hasdot=0, dotposition=0;
+    
+    long long value=0, radix;
+    
+    if((str[0] == '+') || (str[0] == '-'))
     {
-      str[i] = str[i+1];
+        for(i=0; i<7; i++)
+        {
+            str[i] = str[i+1];
+        }
+        
+        str[7] = ' ';
     }
-
-    str[7] = ' ';
-  }
-
-  for(i=0; i<8; i++)
-  {
-    if(str[i]==' ')
+    
+    for(i=0; i<8; i++)
     {
-      len = i;
-      break;
+        if(str[i]==' ')
+        {
+            len = i;
+            break;
+        }
     }
-  }
-
-  for(i=0; i<len; i++)
-  {
-    if(str[i]=='.')
+    
+    for(i=0; i<len; i++)
     {
-      hasdot = 1;
-      dotposition = i;
-      break;
+        if(str[i]=='.')
+        {
+            hasdot = 1;
+            dotposition = i;
+            break;
+        }
     }
-  }
-
-  if(hasdot)
-  {
-    radix = TIME_DIMENSION;
-
-    for(i=dotposition-1; i>=0; i--)
+    
+    if(hasdot)
     {
-        value += ((long long)(str[i] - 48)) * radix;
-        radix *= 10;
+        radix = TIME_DIMENSION;
+        
+        for(i=dotposition-1; i>=0; i--)
+        {
+            value += ((long long)(str[i] - 48)) * radix;
+            radix *= 10;
+        }
+        
+        radix = TIME_DIMENSION / 10;
+        
+        for(i=dotposition+1; i<len; i++)
+        {
+            value += ((long long)(str[i] - 48)) * radix;
+            radix /= 10;
+        }
     }
-
-    radix = TIME_DIMENSION / 10;
-
-    for(i=dotposition+1; i<len; i++)
+    else
     {
-        value += ((long long)(str[i] - 48)) * radix;
-        radix /= 10;
+        radix = TIME_DIMENSION;
+        
+        for(i=len-1; i>=0; i--)
+        {
+            value += ((long long)(str[i] - 48)) * radix;
+            radix *= 10;
+        }
     }
-  }
-  else
-  {
-    radix = TIME_DIMENSION;
-
-    for(i=len-1; i>=0; i--)
-    {
-        value += ((long long)(str[i] - 48)) * radix;
-        radix *= 10;
-    }
-  }
-
-  return value;
+    
+    return value;
 }
 
 

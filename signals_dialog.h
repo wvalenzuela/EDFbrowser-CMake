@@ -92,7 +92,7 @@ private:
 
   QPushButton  *CloseButton,
                *SelectAllButton,
-               *DisplayButton,
+               *AddSignalsButton,
                *DisplayCompButton,
                *AddButton,
                *SubtractButton,
@@ -114,7 +114,7 @@ private:
 
   void show_signals(int);
   void SelectAllButtonClicked();
-  void DisplayButtonClicked();
+  void AddSignalsButtonClicked();
   void DisplayCompButtonClicked();
   void AddButtonClicked();
   void SubtractButtonClicked();

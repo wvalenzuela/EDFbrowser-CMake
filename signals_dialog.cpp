@@ -94,9 +94,9 @@ UI_Signalswindow::UI_Signalswindow(QWidget *w_parent)
   HelpButton->setGeometry(690, 120, 100, 25);
   HelpButton->setText("&Help");
 
-  DisplayButton = new QPushButton(SignalsDialog);
-  DisplayButton->setGeometry(150, 455, 160, 25);
-  DisplayButton->setText("&Add signal(s)");
+  AddSignalsButton = new QPushButton(SignalsDialog);
+  AddSignalsButton->setGeometry(150, 455, 160, 25);
+  AddSignalsButton->setText("&Add signal(s)");
 
   DisplayCompButton = new QPushButton(SignalsDialog);
   DisplayCompButton->setGeometry(430, 455, 160, 25);
@@ -129,7 +129,7 @@ UI_Signalswindow::UI_Signalswindow(QWidget *w_parent)
   QObject::connect(CloseButton,       SIGNAL(clicked()),                SignalsDialog, SLOT(close()));
   QObject::connect(SelectAllButton,   SIGNAL(clicked()),                this,          SLOT(SelectAllButtonClicked()));
   QObject::connect(HelpButton,        SIGNAL(clicked()),                this,          SLOT(HelpButtonClicked()));
-  QObject::connect(DisplayButton,     SIGNAL(clicked()),                this,          SLOT(DisplayButtonClicked()));
+  QObject::connect(AddSignalsButton,     SIGNAL(clicked()),                this,          SLOT(AddSignalsButtonClicked()));
   QObject::connect(DisplayCompButton, SIGNAL(clicked()),                this,          SLOT(DisplayCompButtonClicked()));
   QObject::connect(AddButton,         SIGNAL(clicked()),                this,          SLOT(AddButtonClicked()));
   QObject::connect(SubtractButton,    SIGNAL(clicked()),                this,          SLOT(SubtractButtonClicked()));
@@ -259,7 +259,7 @@ void UI_Signalswindow::DisplayCompButtonClicked()
 }
 
 
-void UI_Signalswindow::DisplayButtonClicked()
+void UI_Signalswindow::AddSignalsButtonClicked()
 {
   int i, n, s, old_scomps;
 
